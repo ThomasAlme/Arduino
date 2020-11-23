@@ -28,7 +28,7 @@
 #define BUTTON_STJERNE 0xFF42BD
 #define BUTTON_FIRKANT 0xFF52AD
 
-const int IR_PIN = 11;
+const int IR_PIN = 11; //PWM
 const int MOTOR_PIN = 7;
 
 IRrecv irReceiver(IR_PIN);
