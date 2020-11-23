@@ -1,2 +1,2 @@
 # Arduino
-Arduino koder brukt i prosjekter
+Arduino koder brukt i prosjekter og eksempler
