@@ -1,0 +1,98 @@
+using System;
+using System.IO;
+using System.Net.Sockets;
+using System.Text;
+using System.Windows.Forms;
+
+namespace TCPClient
+{
+    public partial class Main : Form
+    {
+        public Main()
+        {
+            InitializeComponent();
+        }
+
+        private void sendBtn_Click(object sender, EventArgs e)
+        {
+            SendMessage(cmdTxt.Text);
+            if (showMessage.Checked) MessageBox.Show("Melding sendt!", "Arduino WiFiRemote Klient", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void lightOnBtn_Click(object sender, EventArgs e)
+        {
+            SendMessage("lys_på");
+            if (showMessage.Checked) MessageBox.Show("Melding sendt!", "Arduino WiFiRemote Klient", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void lightOnOffBtn_Click(object sender, EventArgs e)
+        {
+            SendMessage("lys_toggle");
+            if (showMessage.Checked) MessageBox.Show("Melding sendt!", "Arduino WiFiRemote Klient", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void lightOffBtn_Click(object sender, EventArgs e)
+        {
+            SendMessage("lys_av");
+            if (showMessage.Checked) MessageBox.Show("Melding sendt!", "Arduino WiFiRemote Client", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void SendMessage(string msg)
+        {
+            var client = new TcpClient();
+
+            NetworkStream networkStream = null;
+            StreamWriter writer = null;
+            StreamReader reader = null;
+
+            try
+            {
+                client.Connect(ipTxt.Text, 8090);
+
+                networkStream = client.GetStream();
+                networkStream.ReadTimeout = 2000;
+
+                writer = new StreamWriter(networkStream);
+
+                Console.WriteLine(msg);
+                writer.Write(msg + "\r");
+                writer.Flush();
+
+                reader = new StreamReader(networkStream, Encoding.UTF8);
+                string text = reader.ReadToEnd();
+                Console.WriteLine(text);
+                if (!text.Equals(text))
+                {
+                    MessageBox.Show("Serveren fikk ikke hele beskjeden!", "Arduino WiFiRemote Client", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                Console.WriteLine("OK");
+                writer.Write("OK\r");
+                writer.Flush();
+
+            } catch (SocketException)
+            {
+                MessageBox.Show("Kunne ikke koble til Arduino!", "Arduino WiFiRemote Client", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            } catch (IOException)
+            {
+                MessageBox.Show("Feil under sending av melding!", "Arduino WiFiRemote Client", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            } finally
+            {
+                try
+                {
+                    client.Close();
+                    client.Dispose();
+                    networkStream.Dispose();
+                    writer.Dispose();
+                    reader.Dispose();
+                } catch
+                {
+
+                }
+                
+            }
+        }
+    }
+}
